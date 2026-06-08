@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # test only recommend Ruby version (and stable version on the gitaction server)
-        # GitHub action github.com/ruby/setup-ruby is pretty unstable with older Ruby version + dependencies
-        #  so, we only run a basic example with Ruby 2.7.8 after install the gem from the local build
-        ruby-version: ['3.1.0','3.4.5'] 
+        ruby-version: ['3.1.0'] # test only recommend Ruby version (and stable version on the gitaction server)
+     # ideally test with those versions, but gitaction are limited
+     #  2.7.4 is broken.
+     #  4.0.0 is not supported yet
+     #   ruby-version: ['2.7.4','3.1.0','4.0.0']
     steps:
       - uses: actions/checkout@v4
       - name: Set up Ruby ${{ matrix.ruby-version }}

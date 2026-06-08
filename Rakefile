@@ -26,7 +26,7 @@ task readme: ['README.md.erb'] do
 end
 
 YARD::Rake::YardocTask.new(:doc) do |t|
-  t.files   = ['lib/*/*.rb', 'README.md', 'LICENSE']
+  t.files   = ['lib/*/*.rb', 'LICENSE']
   t.options = ['--markup=markdown']
   t.stats_options = ['--list-undoc']
 end
@@ -34,6 +34,12 @@ end
 desc 'validate core client spec files'
 RSpec::Core::RakeTask.new(:test) do |t|
   t.pattern = Dir.glob('spec/serpapi/client/*_spec.rb') + Dir.glob('spec/serpapi/*_spec.rb')
+  t.rspec_opts = '--format documentation'
+end
+
+desc 'run tests under spec/serpapi/client/ with coverage'
+RSpec::Core::RakeTask.new(:coverage) do |t|
+  t.pattern = Dir.glob('spec/serpapi/client/*_spec.rb')
   t.rspec_opts = '--format documentation'
 end
 
