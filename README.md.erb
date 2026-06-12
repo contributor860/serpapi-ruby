@@ -339,156 +339,99 @@ It prints your account information as:
 }
  ```
 
-## Basic example per search engine
+## Examples
 
-### Search google
+Here are some examples for some of our most popular APIs. You can find the full list of supported engines and parameters in our [documentation](https://serpapi.com/search-engine-apis).
 
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_spec.rb') %>
-see: [https://serpapi.com/search-api](https://serpapi.com/search-api)
+### Google Immersive Product
 
-### Search google light
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_light_spec.rb') %>
-see: [https://serpapi.com/google-light-api](https://serpapi.com/google-light-api)
+Scrape Google's immersive product listings to get rich product cards with images, prices, and seller details surfaced directly in search results.
 
-### Search google scholar
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_scholar_spec.rb') %>
-see: [https://serpapi.com/google-scholar-api](https://serpapi.com/google-scholar-api)
+```ruby
+require 'serpapi'
+client = SerpApi::Client.new(engine: 'google_immersive_product', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee' })
+pp results[:immersive_product_results]
+```
 
-### Search google autocomplete
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_autocomplete_spec.rb') %>
-see: [https://serpapi.com/google-autocomplete-api](https://serpapi.com/google-autocomplete-api)
+[See documentation](https://serpapi.com/google-immersive-product-api)
 
-### Search google product
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_product_spec.rb') %>
-see: [https://serpapi.com/google-product-api](https://serpapi.com/google-product-api)
+### Google Images
 
-### Search google reverse image
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_reverse_image_spec.rb') %>
-see: [https://serpapi.com/google-reverse-image](https://serpapi.com/google-reverse-image)
+Scrape Google Images search results, including image URLs, thumbnails, titles, and source pages.
 
-### Search google events
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_events_spec.rb') %>
-see: [https://serpapi.com/google-events-api](https://serpapi.com/google-events-api)
+```ruby
+require 'serpapi'
+client = SerpApi::Client.new(engine: 'google_images', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ tbm: 'isch', q: 'coffee' })
+pp results[:images_results]
+```
 
-### Search google local services
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_local_services_spec.rb') %>
-see: [https://serpapi.com/google-local-services-api](https://serpapi.com/google-local-services-api)
+[See documentation](https://serpapi.com/images-results)
 
-### Search google maps
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_maps_spec.rb') %>
-see: [https://serpapi.com/google-maps-api](https://serpapi.com/google-maps-api)
+**Google Images Light**
 
-### Search google jobs
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_jobs_spec.rb') %>
-see: [https://serpapi.com/google-jobs-api](https://serpapi.com/google-jobs-api)
+A [light variant](https://serpapi.com/google-images-light-api) engine called `google_images_light` is also available for faster, lower-cost image searches.
 
-### Search google play
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_play_spec.rb') %>
-see: [https://serpapi.com/google-play-api](https://serpapi.com/google-play-api)
+### Google Shopping
 
-### Search google images
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_images_spec.rb') %>
-see: [https://serpapi.com/images-results](https://serpapi.com/images-results)
+Scrape Google Shopping results with product names, prices, ratings, and merchant information.
 
-### Search google lens
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_lens_spec.rb') %>
-see: [https://serpapi.com/google-lens-api](https://serpapi.com/google-lens-api)
+```ruby
+require 'serpapi'
+client = SerpApi::Client.new(engine: 'google_shopping', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'Macbook M4' })
+pp results[:shopping_results]
+```
 
-### Search google images light
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_images_light_spec.rb') %>
-see: [https://serpapi.com/google-images-light-api](https://serpapi.com/google-images-light-api)
+[See documentation](https://serpapi.com/google-shopping-api)
 
-### Search google hotels
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_hotels_spec.rb') %>
-see: [https://serpapi.com/google-hotels-api](https://serpapi.com/google-hotels-api)
+**Google Shopping Light**
 
-### Search google flights
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_flights_spec.rb') %>
-see: [https://serpapi.com/google-flights-api](https://serpapi.com/google-flights-api)
+A [light variant](https://serpapi.com/google-shopping-light-api) engine called `google_shopping_light` is also available for faster, lower-cost shopping searches.
 
-### Search google finance
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_finance_spec.rb') %>
-see: [https://serpapi.com/google-finance-api](https://serpapi.com/google-finance-api)
+### Google Maps
 
-### Search google ai overview
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_ai_overview_spec.rb') %>
-see: [https://serpapi.com/google-ai-overview-api](https://serpapi.com/google-ai-overview-api)
+Scrape Google Maps local search results with business names, addresses, ratings, and coordinates.
 
-### Search google news
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_news_spec.rb') %>
-see: [https://serpapi.com/google-news-api](https://serpapi.com/google-news-api)
+```ruby
+require 'serpapi'
+client = SerpApi::Client.new(engine: 'google_maps', api_key: ENV['SERPAPI_KEY'])
+results = client.search({
+  q: 'Coffee',
+  ll: '@40.7455096,-74.0083012,14z',
+  type: 'search'
+})
+pp results[:local_results]
+```
 
-### Search google news light
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_news_light_spec.rb') %>
-see: [https://serpapi.com/google-news-light-api](https://serpapi.com/google-news-light-api)
+[See documentation](https://serpapi.com/google-maps-api)
 
-### Search google patents
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_patents_spec.rb') %>
-see: [https://serpapi.com/google-patents-api](https://serpapi.com/google-patents-api)
+**Google Maps Light**
 
-### Search google trends
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_trends_spec.rb') %>
-see: [https://serpapi.com/google-trends-api](https://serpapi.com/google-trends-api)
+A [light variant](https://serpapi.com/google-maps-light-api) engine called `google_maps_light` is also available for faster, lower-cost local searches.
 
-### Search google shopping
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_shopping_spec.rb') %>
-see: [https://serpapi.com/google-shopping-api](https://serpapi.com/google-shopping-api)
+### Google AI Overview API
 
-### Search google immersive product
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_immersive_product_spec.rb') %>
-see: [https://serpapi.com/google-immersive-product-api](https://serpapi.com/google-immersive-product-api)
+The AI Overview API returns the AI-generated summary shown at the top of Google Search results. The `page_token` is obtained from the `ai_overview` field of a regular Google search response.
 
-### Search google videos
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_google_videos_spec.rb') %>
-see: [https://serpapi.com/google-videos-api](https://serpapi.com/google-videos-api)
+```ruby
+require 'serpapi'
 
-### Search amazon
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_amazon_spec.rb') %>
-see: [https://serpapi.com/amazon-search-api](https://serpapi.com/amazon-search-api)
+# run a Google search to get the page_token from the ai_overview field
+client = SerpApi::Client.new(engine: 'google', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'best coffee maker' })
+page_token = results[:ai_overview][:page_token]
 
-### Search baidu
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_baidu_spec.rb') %>
-see: [https://serpapi.com/baidu-search-api](https://serpapi.com/baidu-search-api)
+# fetch the full AI overview using the page_token
+ai_client = SerpApi::Client.new(engine: 'google_ai_overview', api_key: ENV['SERPAPI_KEY'])
+ai_results = ai_client.search({ page_token: page_token })
+pp ai_results[:ai_overview]
+```
 
-### Search yahoo
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_yahoo_spec.rb') %>
-see: [https://serpapi.com/yahoo-search-api](https://serpapi.com/yahoo-search-api)
+[See documentation](https://serpapi.com/google-ai-overview-api)
 
-### Search youtube
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_youtube_spec.rb') %>
-see: [https://serpapi.com/youtube-search-api](https://serpapi.com/youtube-search-api)
-
-### Search walmart
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_walmart_spec.rb') %>
-see: [https://serpapi.com/walmart-search-api](https://serpapi.com/walmart-search-api)
-
-### Search ebay
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_ebay_spec.rb') %>
-see: [https://serpapi.com/ebay-search-api](https://serpapi.com/ebay-search-api)
-
-### Search naver
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_naver_spec.rb') %>
-see: [https://serpapi.com/naver-search-api](https://serpapi.com/naver-search-api)
-
-### Search home depot
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_home_depot_spec.rb') %>
-see: [https://serpapi.com/home-depot-search-api](https://serpapi.com/home-depot-search-api)
-
-### Search apple app store
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_apple_app_store_spec.rb') %>
-see: [https://serpapi.com/apple-app-store](https://serpapi.com/apple-app-store)
-
-### Search duckduckgo
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_duckduckgo_spec.rb') %>
-see: [https://serpapi.com/duckduckgo-search-api](https://serpapi.com/duckduckgo-search-api)
-
-### Search yandex
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_yandex_spec.rb') %>
-see: [https://serpapi.com/yandex-search-api](https://serpapi.com/yandex-search-api)
-
-### Search yelp
-<%= snippet('ruby', 'spec/serpapi/client/example/example_search_yelp_spec.rb') %>
-see: [https://serpapi.com/yelp-search-api](https://serpapi.com/yelp-search-api)
+For AI Mode search results (Google Search with `udm: 14`), use the `google` engine with the `udm` parameter set to `14`.
 
 ## Performance Comparison
 
