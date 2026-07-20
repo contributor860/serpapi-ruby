@@ -11,7 +11,6 @@ describe 'example: google_images search' do
     client = SerpApi::Client.new(engine: 'google_images', api_key: api_key)
     # run a search using serpapi service
     results = client.search({
-      tbm: 'isch',
       q: 'coffee'
     })
     expect(results[:images_results]).not_to be_nil, "No images results found! keys available: #{results.keys}"

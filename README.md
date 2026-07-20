@@ -325,13 +325,21 @@ Here are some examples for some of our most popular APIs. You can find the full 
 
 ### Google Immersive Product
 
-Scrape Google's immersive product listings to get rich product cards with images, prices, and seller details surfaced directly in search results.
+Retrieve detailed information about a product selected from Google Shopping results, including images, prices, stores, ratings, and reviews.
+
+> **Note:** The `google_immersive_product` engine does not accept a `q` parameter. It requires a `page_token`, returned as `immersive_product_page_token` by a Google Shopping search.
 
 ```ruby
 require 'serpapi'
-client = SerpApi::Client.new(engine: 'google_immersive_product', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
-pp results[:immersive_product_results]
+
+shopping_client = SerpApi::Client.new(engine: 'google_shopping', api_key: ENV['SERPAPI_KEY'])
+shopping_results = shopping_client.search({ q: 'coffee maker' })
+product = shopping_results[:shopping_results].find { |result| result[:immersive_product_page_token] }
+page_token = product[:immersive_product_page_token]
+
+product_client = SerpApi::Client.new(engine: 'google_immersive_product', api_key: ENV['SERPAPI_KEY'])
+product_results = product_client.search({ page_token: page_token })
+pp product_results[:product_results]
 ```
 
 [See documentation](https://serpapi.com/google-immersive-product-api)
@@ -343,7 +351,7 @@ Scrape Google Images search results, including image URLs, thumbnails, titles, a
 ```ruby
 require 'serpapi'
 client = SerpApi::Client.new(engine: 'google_images', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ tbm: 'isch', q: 'coffee' })
+results = client.search({ q: 'coffee' })
 pp results[:images_results]
 ```
 
@@ -391,29 +399,49 @@ pp results[:local_results]
 
 A [light variant](https://serpapi.com/google-maps-light-api) engine called `google_maps_light` is also available for faster, lower-cost local searches.
 
-### Google AI Overview API
+### Google AI Mode API
 
-The AI Overview API returns the AI-generated summary shown at the top of Google Search results. The `page_token` is obtained from the `ai_overview` field of a regular Google search response.
+The Google AI Mode API returns AI-generated answers with structured text blocks, references, images, products, and more.
 
 ```ruby
 require 'serpapi'
 
-# Run a Google search to get the page_token from the ai_overview field
-client = SerpApi::Client.new(engine: 'google', api_key: ENV['SERPAPI_KEY'])
+client = SerpApi::Client.new(engine: 'google_ai_mode', api_key: ENV['SERPAPI_KEY'])
 results = client.search({ q: 'best coffee maker' })
-page_token = results[:ai_overview][:page_token]
-
-# Fetch the full AI overview using the page_token
-ai_client = SerpApi::Client.new(engine: 'google_ai_overview', api_key: ENV['SERPAPI_KEY'])
-ai_results = ai_client.search({ page_token: page_token })
-pp ai_results[:ai_overview]
+pp results[:reconstructed_markdown]
 ```
 
-[See documentation](https://serpapi.com/google-ai-overview-api)
+[See documentation](https://serpapi.com/google-ai-mode-api)
 
-**Google AI Mode**
+### Bing Search
 
-For Google AI Mode search results, use the `google` engine with the `udm` parameter set to `14`.
+Scrape Bing web search results, including organic results, ads, related searches, and more.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(engine: 'bing', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee' })
+pp results[:organic_results]
+```
+
+[See documentation](https://serpapi.com/bing-search-api)
+
+### Amazon Search
+
+Scrape Amazon product search results, including product names, prices, ratings, reviews, and availability.
+
+> **Note:** The `amazon` engine uses the `k` parameter for a keyword search, not `q`.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(engine: 'amazon', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ k: 'coffee' })
+pp results[:organic_results]
+```
+
+[See documentation](https://serpapi.com/amazon-search-api)
 
 ## Performance Comparison
 
