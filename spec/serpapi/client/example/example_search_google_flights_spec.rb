@@ -1,7 +1,8 @@
+require 'date'
 require 'spec_helper'
 
 describe 'example: google_flights search' do
-  it 'prints best_flights' do
+  it 'prints flight results' do
     # Confirm that the environment variable for SERPAPI_KEY has been set properly.
     #  Your SerpApi key can be obtained at this URL http://serpapi.com
     api_key = ENV['SERPAPI_KEY']
@@ -11,17 +12,16 @@ describe 'example: google_flights search' do
     client = SerpApi::Client.new(engine: 'google_flights', api_key: api_key)
     # run a search using serpapi service
     results = client.search({
-      departure_id: 'PEK',
+      departure_id: 'LAX',
       arrival_id: 'AUS',
-      outbound_date: '2025-05-26',
-      return_date: '2025-06-01',
-      currency: 'USD',
-      hl: 'en'
+      outbound_date: (Date.today + 30).iso8601,
+      return_date: (Date.today + 37).iso8601
     })
-    expect(results[:best_flights]).not_to be_nil, "No best flights found! keys available: #{results.keys}"
+    flights = results[:best_flights] || results[:other_flights]
+    expect(flights).not_to be_nil, "No flights found! keys available: #{results.keys}"
 
     # print the output of the response in formatted JSON
-    # pp results[:best_flights]
+    # pp flights
     # doc: https://serpapi.com/google-flights-api
   end
 end

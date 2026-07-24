@@ -343,50 +343,13 @@ It prints your account information as:
 
 Here are some examples for some of our most popular APIs. You can find the full list of supported engines and parameters in our [documentation](https://serpapi.com/search-engine-apis).
 
-### Google Immersive Product
-
-Retrieve detailed information about a product selected from Google Shopping results, including images, prices, stores, ratings, and reviews.
-
-> **Note:** The `google_immersive_product` engine does not accept a `q` parameter. It requires a `page_token`, returned as `immersive_product_page_token` by a Google Shopping search.
-
-```ruby
-require 'serpapi'
-
-shopping_client = SerpApi::Client.new(engine: 'google_shopping', api_key: ENV['SERPAPI_KEY'])
-shopping_results = shopping_client.search({ q: 'coffee maker' })
-product = shopping_results[:shopping_results].find { |result| result[:immersive_product_page_token] }
-page_token = product[:immersive_product_page_token]
-
-product_client = SerpApi::Client.new(engine: 'google_immersive_product', api_key: ENV['SERPAPI_KEY'])
-product_results = product_client.search({ page_token: page_token })
-pp product_results[:product_results]
-```
-
-[See documentation](https://serpapi.com/google-immersive-product-api)
-
-### Google Images
-
-Scrape Google Images search results, including image URLs, thumbnails, titles, and source pages.
-
-```ruby
-require 'serpapi'
-client = SerpApi::Client.new(engine: 'google_images', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
-pp results[:images_results]
-```
-
-[See documentation](https://serpapi.com/images-results)
-
-**Google Images Light**
-
-A [light variant](https://serpapi.com/google-images-light-api) engine called `google_images_light` is also available for faster, lower-cost image searches.
-
 ### Google Shopping
 
 Scrape Google Shopping results with product names, prices, ratings, and merchant information.
 
 ```ruby
 require 'serpapi'
+
 client = SerpApi::Client.new(engine: 'google_shopping', api_key: ENV['SERPAPI_KEY'])
 results = client.search({ q: 'Macbook M4' })
 pp results[:shopping_results]
@@ -398,26 +361,62 @@ pp results[:shopping_results]
 
 A [light variant](https://serpapi.com/google-shopping-light-api) engine called `google_shopping_light` is also available for faster, lower-cost shopping searches.
 
-### Google Maps
+### Google Images
 
-Scrape Google Maps local search results with business names, addresses, ratings, and coordinates.
+Scrape Google Images search results, including image URLs, thumbnails, titles, and source pages.
 
 ```ruby
 require 'serpapi'
-client = SerpApi::Client.new(engine: 'google_maps', api_key: ENV['SERPAPI_KEY'])
-results = client.search({
-  q: 'Coffee',
-  ll: '@40.7455096,-74.0083012,14z',
-  type: 'search'
-})
-pp results[:local_results]
+
+client = SerpApi::Client.new(engine: 'google_images', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee' })
+pp results[:images_results]
 ```
 
-[See documentation](https://serpapi.com/google-maps-api)
+[See documentation](https://serpapi.com/images-results)
 
-**Google Maps Light**
+**Google Images Light**
 
-A [light variant](https://serpapi.com/google-maps-light-api) engine called `google_maps_light` is also available for faster, lower-cost local searches.
+A [light variant](https://serpapi.com/google-images-light-api) engine called `google_images_light` is also available for faster, lower-cost image searches.
+
+### Google Trends
+
+Track search interest over time and compare the popularity of search terms.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(engine: 'google_trends', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee', data_type: 'TIMESERIES' })
+pp results[:interest_over_time]
+```
+
+[See documentation](https://serpapi.com/google-trends-api)
+
+### Google Flights
+
+Search flight routes, schedules, prices, and booking options.
+
+> **Note:** The `google_flights` engine does not use `q`. Specify route and date parameters such as `departure_id`, `arrival_id`, `outbound_date`, and `return_date`.
+
+```ruby
+require 'date'
+require 'serpapi'
+
+outbound_date = (Date.today + 30).iso8601
+return_date = (Date.today + 37).iso8601
+client = SerpApi::Client.new(engine: 'google_flights', api_key: ENV['SERPAPI_KEY'])
+results = client.search({
+  departure_id: 'LAX',
+  arrival_id: 'AUS',
+  outbound_date: outbound_date,
+  return_date: return_date
+})
+flights = results[:best_flights] || results[:other_flights]
+pp flights
+```
+
+[See documentation](https://serpapi.com/google-flights-api)
 
 ### Google AI Mode API
 
@@ -446,6 +445,34 @@ pp results[:organic_results]
 ```
 
 [See documentation](https://serpapi.com/bing-search-api)
+
+### DuckDuckGo Search
+
+Scrape DuckDuckGo search results, including organic results, ads, knowledge graphs, and related searches.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(engine: 'duckduckgo', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee' })
+pp results[:organic_results]
+```
+
+[See documentation](https://serpapi.com/duckduckgo-search-api)
+
+### Baidu Search
+
+Scrape Baidu search results, including organic results, answer boxes, and related searches.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(engine: 'baidu', api_key: ENV['SERPAPI_KEY'])
+results = client.search({ q: 'coffee' })
+pp results[:organic_results]
+```
+
+[See documentation](https://serpapi.com/baidu-search-api)
 
 ### Amazon Search
 
