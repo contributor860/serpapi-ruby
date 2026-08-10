@@ -178,7 +178,7 @@ end
 # run user thread to search for your favorites coffee type
 threads = %w(latte espresso cappuccino americano mocha macchiato frappuccino cold_brew).map do |query|
   Thread.new do
-    pool.with { |socket| socket.search({q: query }).to_s }
+    pool.with { |socket| socket.search(q: query).to_s }
   end
 end
 responses = threads.map(&:value)
@@ -331,7 +331,7 @@ Scrape Google Shopping results with product names, prices, ratings, and merchant
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'google_shopping', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'Macbook M4' })
+results = client.search(q: 'Macbook M4')
 pp results[:shopping_results]
 ```
 
@@ -349,7 +349,7 @@ Scrape Google Images search results, including image URLs, thumbnails, titles, a
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'google_images', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
+results = client.search(q: 'coffee')
 pp results[:images_results]
 ```
 
@@ -367,7 +367,7 @@ Track search interest over time and compare the popularity of search terms.
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'google_trends', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee', data_type: 'TIMESERIES' })
+results = client.search(q: 'coffee', data_type: 'TIMESERIES')
 pp results[:interest_over_time]
 ```
 
@@ -386,12 +386,12 @@ require 'serpapi'
 outbound_date = (Date.today + 30).iso8601
 return_date = (Date.today + 37).iso8601
 client = SerpApi::Client.new(engine: 'google_flights', api_key: ENV['SERPAPI_KEY'])
-results = client.search({
+results = client.search(
   departure_id: 'LAX',
   arrival_id: 'AUS',
   outbound_date: outbound_date,
   return_date: return_date
-})
+)
 flights = results[:best_flights] || results[:other_flights]
 pp flights
 ```
@@ -406,7 +406,7 @@ The Google AI Mode API returns AI-generated answers with structured text blocks,
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'google_ai_mode', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'best coffee maker' })
+results = client.search(q: 'best coffee maker')
 pp results[:reconstructed_markdown]
 ```
 
@@ -420,7 +420,7 @@ Scrape Bing web search results, including organic results, ads, related searches
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'bing', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
+results = client.search(q: 'coffee')
 pp results[:organic_results]
 ```
 
@@ -434,7 +434,7 @@ Scrape DuckDuckGo search results, including organic results, ads, knowledge grap
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'duckduckgo', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
+results = client.search(q: 'coffee')
 pp results[:organic_results]
 ```
 
@@ -448,7 +448,7 @@ Scrape Baidu search results, including organic results, answer boxes, and relate
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'baidu', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ q: 'coffee' })
+results = client.search(q: 'coffee')
 pp results[:organic_results]
 ```
 
@@ -464,7 +464,7 @@ Scrape Amazon product search results, including product names, prices, ratings, 
 require 'serpapi'
 
 client = SerpApi::Client.new(engine: 'amazon', api_key: ENV['SERPAPI_KEY'])
-results = client.search({ k: 'coffee' })
+results = client.search(k: 'coffee')
 pp results[:organic_results]
 ```
 
@@ -519,7 +519,7 @@ client = SerpApi::Client.new(default_parameter)
 search.params[:location] = "Portland,Oregon,United States"
 # new way
 # just provided the search call with the parameters.
-results = client.search({location: "Portland,Oregon,United States", q: "Coffee"})
+results = client.search(location: "Portland,Oregon,United States", q: "Coffee")
 
 # search format return as raw html
 # old way

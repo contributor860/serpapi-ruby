@@ -5,9 +5,9 @@ describe 'example: google_images_light search' do
     # initialize the serp api client
     client = SerpApi::Client.new(engine: 'google_images_light', api_key: api_key)
     # run a search using serpapi service
-    results = client.search({
+    results = client.search(
       q: 'Coffee'
-    })
+    )
     expect(results[:images_results]).not_to be_nil, "No images results found! keys available: #{results.keys}"
 
     # print the output of the response in formatted JSON

@@ -5,10 +5,10 @@ describe 'example: yelp search' do
     # initialize the serp api client
     client = SerpApi::Client.new(engine: 'yelp', api_key: api_key)
     # run a search using serpapi service
-    results = client.search({
+    results = client.search(
       find_desc: 'Coffee',
       find_loc: 'New York, NY, USA'
-    })
+    )
     expect(results[:organic_results]).not_to be_nil, "No organic results found! keys available: #{results.keys}"
 
     # print the output of the response in formatted JSON

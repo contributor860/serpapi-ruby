@@ -32,7 +32,7 @@ describe 'set of client test to archieve full code coverage' do
 
   it 'missing query' do
     begin
-      client.search({})
+      client.search
     rescue SerpApi::SerpApiError => e
       expect(e.message).to include('Missing query')
     rescue => e

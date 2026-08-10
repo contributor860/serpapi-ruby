@@ -5,10 +5,10 @@ describe 'example: google_local_services search' do
     # initialize the serp api client
     client = SerpApi::Client.new(engine: 'google_local_services', api_key: api_key)
     # run a search using serpapi service
-    results = client.search({
+    results = client.search(
       q: 'electrician',
       data_cid: '6745062158417646970'
-    })
+    )
     expect(results[:local_ads]).not_to be_nil, "No local ads found! keys available: #{results.keys}"
 
     # print the output of the response in formatted JSON

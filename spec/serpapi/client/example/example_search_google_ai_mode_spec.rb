@@ -5,7 +5,7 @@ describe 'example: google_ai_mode search' do
     # initialize the serp api client
     client = SerpApi::Client.new(engine: 'google_ai_mode', api_key: api_key)
     # run a search using serpapi service
-    results = client.search({ q: 'best coffee maker' })
+    results = client.search(q: 'best coffee maker')
     expect(results[:reconstructed_markdown]).not_to be_nil, "No reconstructed markdown found! keys available: #{results.keys}"
 
     # print the output of the response in formatted Markdown
