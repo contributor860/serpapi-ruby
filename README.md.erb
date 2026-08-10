@@ -1,23 +1,3 @@
-<%-
-def snippet(format, path, demo = false)
- lines = File.new(path).readlines
- if demo
-  # skip comment
-  buf = lines.reject { |line| line =~ /^\s*#|require 'serpapi'/ }[2..-1].join
- else
-  # select test from line start to stop
-  start = 9
-  stop = lines.find_index { |line| line =~ /pp results/}
-  slice = File.new(path).readlines[start..stop+1]
-  slice.reject! { |l| l =~ /expect\(|^\s*describe|^\s+it|^\s*end\s*$/ }
-  slice.map! { |l| l.gsub(/(^\s\s\s\s)/, '')}
-  buf = slice.join
-  buf.gsub!('# pp ', 'pp ')
-  buf.gsub!('api_key)', "ENV['SERPAPI_KEY'])")
- end
- %Q(```#{format}\nrequire 'serpapi'\n#{buf}```\n\n * source code: [#{path}](https://github.com/serpapi/serpapi-ruby/blob/master/#{path}))
-end
--%>
 # SerpApi Ruby Library
 
 [![serpapi-ruby](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml/badge.svg)](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml) [![Gem Version](https://badge.fury.io/rb/serpapi.svg)](https://badge.fury.io/rb/serpapi)
