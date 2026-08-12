@@ -62,7 +62,8 @@ require 'connection_pool'
 n = 4
 runtime = Benchmark.measure do
   # create a thread pool of 4 threads with a persistent connection to serpapi.com
-  pool = ConnectionPool.new(size: n, timeout: 5) do
+  # timeout is the connection checkout wait, so it must outlast an in-flight search
+  pool = ConnectionPool.new(size: n, timeout: 60) do
     SerpApi::Client.new(engine: 'google',
                         api_key: ENV['SERPAPI_KEY'],
                         timeout: 30,
