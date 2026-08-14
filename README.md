@@ -92,6 +92,60 @@ results = client.search(
 
 Search-engine-specific parameters can also be supplied when creating the client or calling `search`. Parameters passed to `search` override client defaults.
 
+### Search Asynchronous
+
+Search API features non-blocking search using the option: `async=true`.
+ - Non-blocking - async=true - a single parent process can handle unlimited concurrent searches.
+ - Blocking - async=false - many processes must be forked and synchronized to handle concurrent searches. This strategy is I/O usage because each client would hold a network connection.
+
+Search API enables `async` search.
+ - Non-blocking (`async=true`) : the development is more complex, but this allows handling many simultaneous connections.
+ - Blocking (`async=false`) : it is easy to write the code but more compute-intensive when the parent process needs to hold many connections.
+
+Here is an example of asynchronous searches using Ruby
+```ruby
+require 'serpapi'
+
+company_list = %w[meta amazon apple netflix google]
+client = SerpApi::Client.new(engine: 'google', async: true, persistent: true, api_key: ENV['SERPAPI_KEY'])
+schedule_search = Queue.new
+result = nil
+company_list.each do |company|
+  result = client.search(q: company)
+  puts "#{company}: search results found in cache for: #{company}" if result[:search_metadata][:status] =~ /Cached/
+
+  schedule_search.push(result[:search_metadata][:id])
+end
+
+puts "Last search submited at: #{result[:search_metadata][:created_at]}"
+
+puts 'wait 10s for all requests to be completed '
+sleep(10)
+
+puts 'wait until all searches are cached or success'
+until schedule_search.empty?
+  search_id = schedule_search.pop
+
+  search_archived = client.search_archive(search_id)
+
+  company = search_archived[:search_parameters][:q]
+
+  if search_archived[:search_metadata][:status] =~ /Cached|Success/
+    puts "#{search_archived[:search_parameters][:q]}: search results found in archive for: #{company}"
+    next
+  end
+
+  schedule_search.push(search_id)
+end
+
+schedule_search.close
+puts 'done'
+```
+
+ * source code: [demo/demo_async.rb](https://github.com/serpapi/serpapi-ruby/blob/master/demo/demo_async.rb)
+
+This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). Each search may take up to few seconds to complete. By the time the first element pops out of the queue, the search results might already be available in the archive. If not, the `search_archive` method blocks until the search results are available.
+
 ## Examples
 
 Here are some examples for some of our most popular APIs. You can find the full list of supported engines and parameters in our [documentation](https://serpapi.com/search-engine-apis).
