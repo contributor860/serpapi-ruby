@@ -31,7 +31,7 @@ describe 'set of client test to archieve full code coverage' do
   end
 
   it 'search for coffee in Austin, TX and receive Markdown' do
-    results = client.markdown(q: 'Coffee', location: 'Austin, TX')
+    results = client.md(q: 'Coffee', location: 'Austin, TX')
 
     expect(results).to be_a(String)
     expect(results).to start_with('---')
@@ -44,7 +44,7 @@ describe 'set of client test to archieve full code coverage' do
       .with('/search.md', params: hash_including(q: 'Coffee'))
       .and_return(response)
 
-    expect(client.markdown(q: 'Coffee')).to start_with('---')
+    expect(client.md(q: 'Coffee')).to start_with('---')
   end
 
   it 'reports Markdown HTTP errors with their decoder' do
@@ -52,7 +52,7 @@ describe 'set of client test to archieve full code coverage' do
     allow(client.socket).to receive(:get).and_return(response)
 
     expect {
-      client.markdown(q: 'Coffee')
+      client.md(q: 'Coffee')
     }.to raise_error(SerpApi::SerpApiError) { |error| expect(error.decoder).to eq(:markdown) }
   end
 

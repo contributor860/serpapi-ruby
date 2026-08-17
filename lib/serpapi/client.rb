@@ -128,7 +128,7 @@ module SerpApi
     #
     # @param [Hash] params includes engine, api_key, search fields and more.
     # @return [String] search results formatted as Markdown.
-    def markdown(params = {})
+    def md(params = {})
       get('/search.md', :markdown, params)
     end
 
