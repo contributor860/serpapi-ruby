@@ -79,7 +79,7 @@ Use `html` when you need the raw search-engine response:
 raw_html = client.html(q: "coffee")
 ```
 
-Archived results are also available as Markdown with `client.search_archive(search_id, :markdown)`.
+Archived results are also available as Markdown with `client.search_archive(search_id, :md)` or `client.search_archive(search_id, output: "md")`.
 
 Learn more about [SerpApi Markdown output](https://serpapi.com/markdown-output).
 

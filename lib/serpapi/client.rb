@@ -129,7 +129,7 @@ module SerpApi
     # @param [Hash] params includes engine, api_key, search fields and more.
     # @return [String] search results formatted as Markdown.
     def md(params = {})
-      get('/search.md', :markdown, params)
+      get('/search.md', :md, params)
     end
 
     # Get location using Location API
@@ -155,13 +155,15 @@ module SerpApi
     # doc: https://serpapi.com/search-archive-api
     #
     # @param [String|Integer] search_id from original search `results[:search_metadata][:id]`
-    # @param [Symbol] format :json, :html, or :markdown [default: json, optional]
+    # @param [Symbol] format :json, :html, or :md [default: json, optional]
+    # @param [String|Symbol, nil] output response format using the SerpApi output parameter [optional]
     # @return [String|Hash] raw HTML, Markdown, or JSON / Hash
-    def search_archive(search_id, format = :json)
-      raise SerpApiError, 'format must be json, html, or markdown' unless [:json, :html, :markdown].include?(format)
+    def search_archive(search_id, format = :json, output: nil)
+      format = output.to_s.to_sym unless output.nil?
+      raise SerpApiError, 'format must be json, html, or md' unless [:json, :html, :md].include?(format)
 
-      extension = format == :markdown ? :md : format
-      get("/searches/#{search_id}.#{extension}", format)
+      endpoint = output.nil? ? "/searches/#{search_id}.#{format}" : "/searches/#{search_id}"
+      get(endpoint, format, output.nil? ? {} : { output: output })
     end
 
     # Get account information using Account API
@@ -221,7 +223,7 @@ module SerpApi
     # Perform HTTP GET request to the SerpApi.com backend endpoint.
     #
     # @param [String] endpoint HTTP service URI
-    # @param [Symbol] decoder type :json, :html, or :markdown
+    # @param [Symbol] decoder type :json, :html, or :md
     # @param [Hash] params custom search inputs
     # @return [String|Hash] raw text or decoded response as JSON / Hash
     def get(endpoint, decoder = :json, params = {})
@@ -244,10 +246,10 @@ module SerpApi
         process_json_response(response, endpoint, params)
       when :html
         process_html_response(response, endpoint, params)
-      when :markdown
+      when :md
         process_markdown_response(response, endpoint, params)
       else
-        raise SerpApiError, "not supported decoder: #{decoder}, available: :json, :html, :markdown"
+        raise SerpApiError, "not supported decoder: #{decoder}, available: :json, :html, :md"
       end
     end
 
@@ -271,7 +273,7 @@ module SerpApi
     end
 
     def process_markdown_response(response, endpoint, params)
-      raise_http_error(response, nil, endpoint, params, decoder: :markdown) if response.status != 200
+      raise_http_error(response, nil, endpoint, params, decoder: :md) if response.status != 200
 
       data = response.body.to_s
       response.flush if persistent?

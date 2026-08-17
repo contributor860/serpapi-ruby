@@ -53,7 +53,7 @@ describe 'set of client test to archieve full code coverage' do
 
     expect {
       client.md(q: 'Coffee')
-    }.to raise_error(SerpApi::SerpApiError) { |error| expect(error.decoder).to eq(:markdown) }
+    }.to raise_error(SerpApi::SerpApiError) { |error| expect(error.decoder).to eq(:md) }
   end
 
   it 'missing query' do
