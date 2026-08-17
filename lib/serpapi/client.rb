@@ -312,7 +312,7 @@ module SerpApi
 
     def raise_parser_error(response, endpoint, params)
       raise SerpApiError.new(
-        "JSON parse error: #{response.body} on get url: https://#{BACKEND}#{endpoint}",
+        "JSON parse error: #{response.body} from url: https://#{BACKEND}#{endpoint}",
         search_params: params,
         response_status: response.status,
         decoder: :json
