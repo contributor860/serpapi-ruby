@@ -55,9 +55,33 @@ client.close
 
 - [Asynchronous searches](./demo/demo_async.rb) for submitting non-blocking jobs and retrieving completed results from the Search Archive API.
 - [Persistent connections and connection pooling](./demo/demo_thread_pool.rb) for reusing HTTP connections across searches.
-- JSON responses as Ruby hashes with `search`, or raw search-engine HTML with `html`.
+- Search results as Ruby hashes with `search`, token-efficient Markdown with `markdown`, or raw search-engine HTML with `html`.
 - SDK methods for the [Location API](https://serpapi.com/locations-api), [Search Archive API](https://serpapi.com/search-archive-api), and [Account API](https://serpapi.com/account-api).
 - Configurable HTTP timeouts and symbolized or string JSON keys.
+
+## Response formats
+
+Use `search` for structured results decoded into a Ruby `Hash`:
+
+```ruby
+results = client.search(q: "coffee")
+```
+
+Use `markdown` for a token-efficient Markdown `String` optimized for LLMs and AI agents:
+
+```ruby
+markdown = client.markdown(q: "coffee")
+```
+
+Use `html` when you need the raw search-engine response:
+
+```ruby
+raw_html = client.html(q: "coffee")
+```
+
+Archived results are also available as Markdown with `client.search_archive(search_id, :markdown)`.
+
+Learn more about [SerpApi Markdown output](https://serpapi.com/markdown-output).
 
 ## Configuration
 
