@@ -8,6 +8,7 @@ module SerpApi
   #  * async non-block search
   #  * persistent HTTP connection
   #  * search API
+  #  * image API
   #  * location API
   #  * account API
   #  * search archive API
@@ -134,6 +135,25 @@ module SerpApi
       get('/locations.json', :json, params)
     end
 
+    # Upload an image using the Image API.
+    # The returned image ID can be supplied to Search API engines that support
+    # uploaded images, such as Google Lens. Image IDs expire after 10 minutes.
+    #
+    # doc: https://serpapi.com/image-api
+    #
+    # @param [String, Pathname, IO] image path or readable image stream
+    # @param [Hash] params request parameters, such as an API key overriding the client default
+    # @return [Hash] upload result containing the image ID
+    def upload_image(image, params = {})
+      if image.is_a?(String) || (defined?(Pathname) && image.is_a?(Pathname))
+        ::File.open(image, 'rb') do |file|
+          post('/image', :json, params, image: HTTP::FormData::File.new(file))
+        end
+      else
+        post('/image', :json, params, image: HTTP::FormData::File.new(image))
+      end
+    end
+
     # Retrieve search result from the Search Archive API
     #
     # ```ruby
@@ -215,17 +235,26 @@ module SerpApi
     # @param [Hash] params custom search inputs
     # @return [String|Hash] raw HTML or decoded response as JSON / Hash
     def get(endpoint, decoder = :json, params = {})
-      response = execute_request(endpoint, params)
+      response = execute_request(:get, endpoint, params: query(params))
       handle_response(response, decoder, endpoint, params)
     end
 
-    def execute_request(endpoint, params)
-      if persistent?
-        @socket.get(endpoint, params: query(params))
-      else
-        url = "https://#{BACKEND}#{endpoint}"
-        HTTP.timeout(timeout).get(url, params: query(params))
-      end
+    # Perform an HTTP POST request with a multipart/form-data body
+    #
+    # @param [String] endpoint relative SerpApi endpoint, such as "/image"
+    # @param [Symbol] decoder response decoder, either :json or :html
+    # @param [Hash] params request parameters
+    # @param [Hash] form multipart-specific fields, including uploaded files
+    # @return [String|Hash] raw HTML or decoded response as JSON / Hash
+    def post(endpoint, decoder = :json, params = {}, form = {})
+      response = execute_request(:post, endpoint, form: query(params).merge(form))
+      handle_response(response, decoder, endpoint, params)
+    end
+
+    def execute_request(method, endpoint, options)
+      client = persistent? ? @socket : HTTP.timeout(timeout)
+      url = persistent? ? endpoint : "https://#{BACKEND}#{endpoint}"
+      client.public_send(method, url, **options)
     end
 
     def handle_response(response, decoder, endpoint, params)
