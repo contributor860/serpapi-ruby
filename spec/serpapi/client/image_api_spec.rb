@@ -42,6 +42,23 @@ describe 'Image API' do
       response
     end
 
-    expect(client.upload_image(image)[:image_id]).to eq('test-image-id')
+    result = client.upload_image(image)
+
+    expect(result[:image_id]).to eq('test-image-id')
+  end
+
+  it 'raises an error when image is rejected' do
+    error_response = double(
+      status: 400,
+      body: '{"error":"Invalid image format. Supported format: jpg, jpeg, png, webp"}'
+    )
+    allow(socket).to receive(:post).with('/image', anything).and_return(error_response)
+
+    expect {
+      client.upload_image(StringIO.new('invalid image data'))
+    }.to raise_error(
+      SerpApi::SerpApiError,
+      /Invalid image format\. Supported format: jpg, jpeg, png, webp/
+    )
   end
 end
