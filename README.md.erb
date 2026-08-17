@@ -237,6 +237,23 @@ exit 0
  * source code: [demo/demo.rb](https://github.com/serpapi/serpapi-ruby/blob/master/demo/demo.rb)
 
 ## APIs supported
+### Image API
+
+Upload a JPG/JPEG, PNG, or WebP image and receive an `image_id` for use with Search API engines that support uploaded images, such as Google Lens. Images must be no larger than 500 KB, and the returned ID expires after 10 minutes.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(api_key: ENV['SERPAPI_KEY'])
+upload = client.upload_image('/path/to/image.png')
+pp upload[:image_id]
+
+results = client.search(engine: 'google_lens', image_id: upload[:image_id])
+pp results
+```
+
+[See Image API documentation](https://serpapi.com/image-api)
+
 ### Location API
 
 ```ruby
