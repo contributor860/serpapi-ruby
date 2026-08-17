@@ -1,114 +1,97 @@
 # SerpApi Ruby Library
 
-[![serpapi-ruby](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml/badge.svg)](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml) [![Gem Version](https://badge.fury.io/rb/serpapi.svg)](https://badge.fury.io/rb/serpapi) 
+[![serpapi-ruby](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml/badge.svg)](https://github.com/serpapi/serpapi-ruby/actions/workflows/ci.yml) [![Gem Version](https://badge.fury.io/rb/serpapi.svg)](https://badge.fury.io/rb/serpapi)
 
-Integrate search data into your AI workflow, RAG / fine-tuning, or Ruby application using this official wrapper for [SerpApi](https://serpapi.com). 
-
-SerpApi supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and [more](https://serpapi.com). 
-
-Query a vast range of data at scale, including web search results, flight schedules, stock market data, news headlines, and [more](https://serpapi.com). 
-
-## Features
-  * `persistent` → Keep socket connection open to save on SSL handshake / reconnection (2x faster).  [Search at scale](#Search-At-Scale)
-  * `async` → Support non-blocking job submission. [Search Asynchronous](#Search-Asynchronous)
-  * extensive documentation → easy to follow
-  * real world examples → included throughout
+Integrate search data into your AI workflow, RAG, fine-tuning, or Ruby application using this official [SerpApi Ruby SDK](https://serpapi.com/integrations/ruby). [SerpApi](https://serpapi.com) supports Google, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, App Stores, and many more.
 
 ## Installation
 
-Ruby 2.7 and higher are supported. To achieve an optimal performance, the latest version is recommended. Check 2.7.8 vs 3.4.4 [performance comparison](#Performance-Comparison).
+Ruby 2.7 or later is required.
 
-Other versions, such as Ruby 1.9, Ruby 2.x, and JRuby, are compatible with [legacy SerpApi library](https://github.com/serpapi/google-search-results-ruby), which is still supported. To upgrade to the latest library, check our [migration guide](#Migration-quick-guide).
+Install the SDK directly with RubyGems:
 
-### Bundler
-```ruby
-gem 'serpapi', '~> 1.0', '>= 1.0.3'
-```
-
-### Gem 
 ```bash
-$ gem install serpapi
+gem install serpapi
 ```
 
-[Ruby Gem page](https://rubygems.org/gems/serpapi/)
-
-## Simple Usage
+Or add it to your application's `Gemfile`:
 
 ```ruby
-require 'serpapi'
-client = SerpApi::Client.new(engine: "google", api_key: "<SERPAPI_KEY>")
-results = client.search(q: "coffee")
-pp results
- ```
+gem "serpapi"
+```
 
-This example runs a search for "coffee" on Google. It then returns the results as a regular Ruby Hash.
- See the [playground](https://serpapi.com/playground) to generate your own code.
+Then install it with Bundler:
 
-The SerpApi key can be obtained from [serpapi.com/signup](https://serpapi.com/users/sign_up?plan=free).
+```bash
+bundle install
+```
 
-Environment variables are a secure, safe, and easy way to manage secrets.
- Set `export SERPAPI_KEY=<secret_serpapi_key>` in your shell.
- Ruby accesses these variables from `ENV['SERPAPI_KEY']`.
+## Quickstart
 
+[Create a SerpApi account](https://serpapi.com/users/sign_up?plan=free) to get your API key, then store it in an environment variable:
 
-## Search API advanced usage with Google search engine
+```bash
+export SERPAPI_KEY="your_api_key"
+```
 
-This example dives into all the available parameters for the Google search engine.
-The list of parameters depends on the chosen search engine.
+Run a Google search and access the results as a Ruby `Hash`:
 
 ```ruby
-# load gem
-require 'serpapi'
+require "serpapi"
+require "pp"
 
-# serpapi client created with default parameters
 client = SerpApi::Client.new(
-  engine: 'google',
-  api_key: ENV['SERPAPI_KEY'],
-  # HTTP client configuration
-  async: false, # non-blocking HTTP request see: Search Asynchronous (default: false)
-  persistent: true, # leave socket connection open for faster response time see: Search at scale (default: true)
-  timeout: 5, # HTTP timeout in seconds on the client side only. (default: 120s)
-  symbolize_names: true # turn on/off JSON keys to symbols (default: on, more efficient)
+  engine: "google",
+  api_key: ENV.fetch("SERPAPI_KEY")
 )
 
-# search query overview (more fields available depending on search engine)
-params = {
-  # overview of parameter for Google search engine which is one of many search engine supported.
-  # select the search engine (full list: https://serpapi.com/)
-  engine: "google",
-  # actual search query
-  q: "Coffee",
-  # then adds search engine specific options.
-  # for example: google specific parameters: https://serpapi.com/search-api
-  google_domain: "Google Domain",
-  # example: Portland,Oregon,United States [ * doc: Location API](#Location-API)
-  location: "Location Requested",
-  device: "desktop|mobile|tablet",
-  hl: "Google UI Language",
-  gl: "Google Country",
-  safe: "Safe Search Flag",
-  start: "Pagination Offset",
-  tbm: "nws|isch|shop",
-  tbs: "custom to be client criteria",
-}
+results = client.search(q: "coffee")
+pp results[:organic_results]
 
-# search results as a symbolized Hash (per performance)
-results = client.search(params)
-
-# search results as a raw HTML string
-raw_html = client.html(params)
+client.close
 ```
- → [SerpApi documentation](https://serpapi.com/search-api).
 
-#### Documentations
-This library is well documented, and you can find the following resources:
- * [Full documentation on SerpApi.com](https://serpapi.com)
- * [Library Github page](https://github.com/serpapi/serpapi-ruby)
- * [Library GEM page](https://rubygems.org/gems/serpapi/)
- * [Library API documentation](https://rubydoc.info/github/serpapi/serpapi-ruby/master)
- * [API health status](https://serpapi.com/status)
+## Features
 
-## Advanced search API usage
+- [Asynchronous searches](./demo/demo_async.rb) for submitting non-blocking jobs and retrieving completed results from the Search Archive API.
+- [Persistent connections and connection pooling](./demo/demo_thread_pool.rb) for reusing HTTP connections across searches.
+- JSON responses as Ruby hashes with `search`, or raw search-engine HTML with `html`.
+- SDK methods for the [Location API](https://serpapi.com/locations-api), [Search Archive API](https://serpapi.com/search-archive-api), and [Account API](https://serpapi.com/account-api).
+- Configurable HTTP timeouts and symbolized or string JSON keys.
+
+## Configuration
+
+Set defaults when creating a client, then override search parameters in individual calls:
+
+```ruby
+client = SerpApi::Client.new(
+  api_key: ENV.fetch("SERPAPI_KEY"),
+  engine: "google",
+  hl: "en",
+  gl: "us",
+  persistent: true,
+  timeout: 120
+)
+
+results = client.search(
+  q: "coffee",
+  gl: "gb",
+  async: false,
+  symbolize_names: true
+)
+```
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `api_key` | None | Your SerpApi API key. Use an environment variable rather than committing it to source control. |
+| `engine` | None | The search engine used by default, such as `google` or `google_maps`. |
+| `persistent` | `true` | Reuses the HTTP connection between requests. Call `client.close` when finished. |
+| `timeout` | `120` | Timeout in seconds for non-persistent HTTP requests. |
+| `async` | `false` | Submits searches without waiting for them to complete. It can be set on the client or per search. |
+| `symbolize_names` | `true` | Returns JSON object keys as symbols. Pass `false` to a search to receive string keys. |
+
+Search-engine-specific parameters can also be supplied when creating the client or calling `search`. Parameters passed to `search` override client defaults.
+
 ### Search Asynchronous
 
 Search API features non-blocking search using the option: `async=true`.
@@ -119,7 +102,7 @@ Search API enables `async` search.
  - Non-blocking (`async=true`) : the development is more complex, but this allows handling many simultaneous connections.
  - Blocking (`async=false`) : it is easy to write the code but more compute-intensive when the parent process needs to hold many connections.
 
-Here is an example of asynchronous searches using Ruby 
+Here is an example of asynchronous searches using Ruby
 ```ruby
 require 'serpapi'
 
@@ -162,163 +145,6 @@ puts 'done'
  * source code: [demo/demo_async.rb](https://github.com/serpapi/serpapi-ruby/blob/master/demo/demo_async.rb)
 
 This code shows a simple solution to batch searches asynchronously into a [queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)). Each search may take up to few seconds to complete. By the time the first element pops out of the queue, the search results might already be available in the archive. If not, the `search_archive` method blocks until the search results are available.
-
-### Search at scale
-The provided code snippet is a Ruby spec test case that demonstrates the use of thread pools to execute multiple HTTP requests concurrently.
-
-```ruby
-require 'serpapi'
-require 'connection_pool'
-
-# create a thread pool of 4 threads with a persistent connection to serpapi.com
-# timeout is the connection checkout wait, so it must outlast an in-flight search
-pool = ConnectionPool.new(size: n, timeout: 60) do
-  SerpApi::Client.new(engine: 'google', api_key: ENV['SERPAPI_KEY'], timeout: 30, persistent: true)
-end
-
-# run user thread to search for your favorites coffee type
-threads = %w(latte espresso cappuccino americano mocha macchiato frappuccino cold_brew).map do |query|
-  Thread.new do
-    pool.with { |socket| socket.search(q: query).to_s }
-  end
-end
-responses = threads.map(&:value)
-```
-
-The code aims to demonstrate how thread pools can be used to 
-improve performance by executing multiple tasks concurrently. In 
-this case, it makes multiple HTTP requests to an API endpoint using 
-a thread pool of persistent connections.
-
-Note: `gem install connection_pool` to run this example.
-
-**Benefits:**
-
-* Improved performance by avoiding the overhead of creating and destroying connections for each request.
-* Efficient use of resources by sharing connections among multiple threads.
-* Concurrency and parallelism, allowing multiple requests to be processed simultaneously.
-
-benchmark: (demo/demo_thread_pool.rb)
-
-** Benchmark Ruby 3.4.8 vs Ruby 4.0.0 **
-
-benchmark: (demo/demo_thread_pool.rb)
-
-| ruby | runtime (s) | thread | time/thread (s) |
-|------|------------:|-------:|----------------:|
-| 3.4.8 | 0.018644 | 4 | 0.004661 |
-| 4.0.0 | 0.017302 | 4 | 0.004326 |
-
-Ruby 4.0.0 shows a slight improvement over Ruby 3.4.8, but the difference is not significant using thread. 
-Ractor could be considered for a more efficient use of resources but it's still in the experimental stage.
-
-Note: in this benchmark, `thread == HTTP connections`.
-
-### Real world search without persistency
-
-```ruby
-require 'serpapi'
-require 'pp'
-
-client = SerpApi::Client.new(api_key: ENV['SERPAPI_KEY'])
-params = {
-  q: 'coffee'
-}
-results = client.search(params)
-unless results[:organic_results]
-  puts 'no organic results found'
-  exit 1
-end
-pp results[:organic_results]
-puts 'done'
-exit 0
-```
-
- * source code: [demo/demo.rb](https://github.com/serpapi/serpapi-ruby/blob/master/demo/demo.rb)
-
-## APIs supported
-### Location API
-
-```ruby
-require 'serpapi'
-client = SerpApi::Client.new
-location_list = client.location(q: "Austin", limit: 3)
-puts "number of location: #{location_list.size}"
-pp location_list
-```
-
-it prints the first 3 locations matching Austin (Texas, Texas, Rochester)
-```ruby
-[{
-  :id=>"585069bdee19ad271e9bc072",
-  :google_id=>200635,
-  :google_parent_id=>21176,
-  :name=>"Austin, TX",
-  :canonical_name=>"Austin,TX,Texas,United States",
-  :country_code=>"US",
-  :target_type=>"DMA Region",
-  :reach=>5560000,
-  :gps=>[-97.7430608, 30.267153],
-  :keys=>["austin", "tx", "texas", "united", "states"]
-  }
-  # ...
-]
-```
-
-NOTE: api_key is not required for this endpoint.
-
-### Search Archive API
-
-This API allows retrieving previous search results.
-To fetch earlier results from the search_id.
-
-First, you need to run a search and save the search ID.
-
-```ruby
-require 'serpapi'
-client = SerpApi::Client.new(engine: 'google', api_key: ENV['SERPAPI_KEY'])
-results = client.search(q: "Coffee", location: "Portland")
-search_id = results[:search_metadata][:id]
-```
-
-Now we can retrieve the previous search results from the archive using the search ID (free of charge).
-
-```ruby
-require 'serpapi'
-client = SerpApi::Client.new(api_key: ENV['SERPAPI_KEY'])
-results = client.search_archive(search_id)
-pp results
-```
-
-This code prints the search results from the archive. :)
-
-### Account API
-```ruby
-require 'serpapi'
-client = SerpApi::Client.new(api_key: ENV['SERPAPI_KEY'])
-pp client.account
-```
-
-It prints your account information as:
-```ruby
-{
-  account_id: "1234567890",
-  api_key: "your_secret_key",
-  account_email: "email@company.com",
-  account_status: "Active",
-  plan_id: "free",
-  plan_name: "Free Plan",
-  plan_monthly_price: 0.0,
-  searches_per_month: 250,
-  plan_searches_left: 250,
-  extra_credits: 0,
-  total_searches_left: 250,
-  this_month_usage: 0,
-  this_hour_searches: 0,
-  last_hour_searches: 0,
-  account_rate_limit_per_hour: 250
-}
- ```
 
 ## Examples
 
@@ -471,7 +297,18 @@ pp results[:organic_results]
 
 [See documentation](https://serpapi.com/amazon-search-api)
 
-## Performance Comparison
+## Documentation
+
+SerpApi supports Google Search, Google Maps, Google Shopping, Baidu, Yandex, Yahoo, eBay, Apple App Store, and many other APIs. Browse the [SerpApi documentation](https://serpapi.com/search-api) to find supported APIs and parameters, or use the [Playground](https://serpapi.com/playground) to build a request and generate Ruby code.
+
+Additional SDK resources:
+
+- [Ruby SDK integration page](https://serpapi.com/integrations/ruby)
+- [Ruby SDK API reference](https://rubydoc.info/github/serpapi/serpapi-ruby/master)
+- [RubyGems package](https://rubygems.org/gems/serpapi)
+- [SerpApi status](https://serpapi.com/status)
+
+## Performance
 
 ### Ruby 4.0.0 vs 3.4.4 vs Ruby 2.7.8 Performance
 
@@ -489,76 +326,12 @@ pp results[:organic_results]
 4. **SerpApi Optimization**: Shows consistent ~2.2x improvement with persistent connections regardless of Ruby version
 5. **Ruby 4.0.0 Performance**: Shows mixed results with some regressions compared to 3.4.4, particularly for HTTP.rb persistent connections. Ruby 4.0.0 was just released for Christmas 2025, and HTTP.rb has not been optimized for it yet.
 
-The older library (google-search-results-ruby) was performing at 55 req/s on Ruby 2.7.8, which is 2x slower than the current version (serpapi-ruby) on Ruby 3.4.4 or 4.0.0. 
+The older library (google-search-results-ruby) was performing at 55 req/s on Ruby 2.7.8, which is 2x slower than the current version (serpapi-ruby) on Ruby 3.4.4 or 4.0.0.
 
-**Context** This benchmark was performed on warmup search results using a MacBook Pro 2025 connected via Wi-Fi 6.0 home network on AT&T fiber from Austin, TX (no network optimization). 
-
-## Migration quick guide
-
-If you were already using [google-search-results-ruby gem](https://github.com/serpapi/google-search-results-ruby), here are the changes.
-
-```
-# load library
-# old way 
-require 'google_search_results'
-# new way
-require 'serpapi'
-
-# define a search
-# old way to describe the search
-search = GoogleSearch.new(search_params)
-# new way 
-default_parameter = {api_key: "secret_key", engine: "google"}
-client = SerpApi::Client.new(default_parameter)
-# an instance of the serpapi client is created
-# where the default parameters are stored in the client.
-#   like api_key, engine
-#  then each subsequent API call can be made with additional parameters.
-
-# override an existing parameter
-# old way
-search.params[:location] = "Portland,Oregon,United States"
-# new way
-# just provided the search call with the parameters.
-results = client.search(location: "Portland,Oregon,United States", q: "Coffee")
-
-# search format return as raw html
-# old way
-html_results = search.get_html
-# new way
-raw_html = client.html(params)
-# where params is Hash containing additional key / value
-
-# search format returns a Hash
-# old way
-hash_results = search.get_hash
-# new way
-results = client.search(params)
-# where params is the search parameters (override the default search parameters in the constructor). 
-
-# search as raw JSON format
-# old way
-json_results = search.get_json
-# new way
-results = client.search(params)
-
-# The prefix get_ is removed from all other methods.
-#  Because it's evident that a method returns something.
-# old -> new way
-search.get_search_archive -> client.search_archive
-search.get_account -> client.account
-search.get_location -> client.location
-```
-
-Most notable improvements:
- - Removing parameters check on the client side. (most of the bugs)
- - Reduce logic complexity in our implementation. (faster performance)
- - Better documentation.
-
-## Supported Ruby versions
-
-Ruby 2.7 and higher is supported.
+**Context** This benchmark was performed on warmup search results using a MacBook Pro 2025 connected via Wi-Fi 6.0 home network on AT&T fiber from Austin, TX (no network optimization).
 
 ## Contributing
 
 Contributions are welcome. Make sure to read our [contributing guide](./CONTRIBUTING.md).
+
+© 2026 [SerpApi](https://serpapi.com)
