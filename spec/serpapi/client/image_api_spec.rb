@@ -34,11 +34,13 @@ describe 'Image API' do
     end
   end
 
-  it 'uploads an image from an IO object' do
+  it 'rewinds and uploads an image from an IO object' do
     image = StringIO.new('image data')
+    image.read(5)
 
     expect(socket).to receive(:post) do |endpoint, options|
       expect(endpoint).to eq('/image')
+      expect(image.pos).to eq(0)
       response
     end
 

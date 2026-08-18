@@ -150,7 +150,7 @@ module SerpApi
           post('/image', :json, params, image: HTTP::FormData::File.new(file))
         end
       else
-        post('/image', :json, params, image: HTTP::FormData::File.new(image))
+        post('/image', :json, params, image: HTTP::FormData::File.new(image).tap(&:rewind))
       end
     end
 
