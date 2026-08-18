@@ -56,7 +56,7 @@ client.close
 - [Asynchronous searches](./demo/demo_async.rb) for submitting non-blocking jobs and retrieving completed results from the Search Archive API.
 - [Persistent connections and connection pooling](./demo/demo_thread_pool.rb) for reusing HTTP connections across searches.
 - JSON responses as Ruby hashes with `search`, or raw search-engine HTML with `html`.
-- SDK methods for the [Location API](https://serpapi.com/locations-api), [Search Archive API](https://serpapi.com/search-archive-api), and [Account API](https://serpapi.com/account-api).
+- SDK methods for the [Image API](https://serpapi.com/image-api), [Location API](https://serpapi.com/locations-api), [Search Archive API](https://serpapi.com/search-archive-api), and [Account API](https://serpapi.com/account-api).
 - Configurable HTTP timeouts and symbolized or string JSON keys.
 
 ## Configuration
@@ -185,6 +185,21 @@ pp results[:images_results]
 **Google Images Light**
 
 A [light variant](https://serpapi.com/google-images-light-api) engine called `google_images_light` is also available for faster, lower-cost image searches.
+
+### Google Lens with File Upload
+
+Upload an image with the Image API, then use its image ID in a Google Lens search. Uploaded image IDs expire after 10 minutes.
+
+```ruby
+require 'serpapi'
+
+client = SerpApi::Client.new(api_key: ENV['SERPAPI_KEY'])
+upload = client.upload_image('./image.jpg')
+results = client.search(engine: 'google_lens', image_id: upload[:image_id])
+pp results[:visual_matches]
+```
+
+[See Image API documentation](https://serpapi.com/image-api) · [See Google Lens image upload documentation](https://serpapi.com/google-lens-upload-an-image)
 
 ### Google Trends
 
