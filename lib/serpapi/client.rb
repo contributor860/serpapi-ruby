@@ -156,14 +156,11 @@ module SerpApi
     #
     # @param [String|Integer] search_id from original search `results[:search_metadata][:id]`
     # @param [Symbol] format :json, :html, or :md [default: json, optional]
-    # @param [String|Symbol, nil] output response format using the SerpApi output parameter [optional]
     # @return [String|Hash] raw HTML, Markdown, or JSON / Hash
-    def search_archive(search_id, format = :json, output: nil)
-      format = output.to_s.to_sym unless output.nil?
+    def search_archive(search_id, format = :json)
       raise SerpApiError, 'format must be json, html, or md' unless [:json, :html, :md].include?(format)
 
-      endpoint = output.nil? ? "/searches/#{search_id}.#{format}" : "/searches/#{search_id}"
-      get(endpoint, format, output.nil? ? {} : { output: output })
+      get("/searches/#{search_id}.#{format}", format)
     end
 
     # Get account information using Account API
