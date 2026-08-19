@@ -243,10 +243,8 @@ module SerpApi
       case decoder
       when :json
         process_json_response(response, endpoint, params)
-      when :html
-        process_html_response(response, endpoint, params)
-      when :md
-        process_markdown_response(response, endpoint, params)
+      when :html, :md
+        process_text_response(response, endpoint, params, decoder)
       else
         raise SerpApiError, "not supported decoder: #{decoder}, available: :json, :html, :md"
       end
@@ -266,13 +264,8 @@ module SerpApi
       data
     end
 
-    def process_html_response(response, endpoint, params)
-      raise_http_error(response, nil, endpoint, params, decoder: :html) if response.status != 200
-      response.body
-    end
-
-    def process_markdown_response(response, endpoint, params)
-      raise_http_error(response, nil, endpoint, params, decoder: :md) if response.status != 200
+    def process_text_response(response, endpoint, params, decoder)
+      raise_http_error(response, nil, endpoint, params, decoder: decoder) if response.status != 200
 
       data = response.body.to_s
       response.flush if persistent?
