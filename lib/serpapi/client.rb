@@ -15,6 +15,7 @@ module SerpApi
   class Client
     # Backend service URL
     BACKEND = 'serpapi.com'.freeze
+    OUTPUT_DECODERS = { 'html' => :html, 'md' => :md }.freeze
 
     # HTTP timeout requests
     attr_reader :timeout,
@@ -108,9 +109,10 @@ module SerpApi
     #                 thus, most of the compute power is on the backsdend and not on the client side.
     # @param [Hash] params includes engine, api_key, search fields and more..
     #                this override the default params provided to the constructor.
-    # @return [Hash] search results formatted as a Hash.
+    # @return [Hash|String] search results formatted as a Hash or raw text.
     def search(params = {})
-      get('/search', :json, params)
+      output = query(params).transform_keys(&:to_sym)[:output]
+      get('/search', OUTPUT_DECODERS.fetch(output.to_s, :json), params)
     end
 
     # html search perform a search using SerpApi.com

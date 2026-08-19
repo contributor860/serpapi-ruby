@@ -25,6 +25,17 @@ describe 'set of client test to archieve full code coverage' do
     expect(results.keys).to include('search_metadata'), 'search_metadata should be present in the results'
   end
 
+  it 'selects the decoder from the output parameter' do
+    json = client.search(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    html = client.search(q: 'Coffee', location: 'Austin, TX', output: 'html')
+    markdown = client.search(q: 'Coffee', location: 'Austin, TX', output: 'md')
+
+    expect(json).to be_a(Hash)
+    expect(html).to match(/coffee/i)
+    expect(markdown).to be_a(String)
+    expect(markdown).to start_with('---')
+  end
+
   it 'search for coffee in Austin, TX and receive raw HTML' do
     results = client.html(q: 'Coffee', location: 'Austin, TX')
     expect(results).to match(/coffee/i)
