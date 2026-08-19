@@ -15,7 +15,7 @@ module SerpApi
   class Client
     # Backend service URL
     BACKEND = 'serpapi.com'.freeze
-    OUTPUT_DECODERS = { 'html' => :html, 'md' => :md }.freeze
+    OUTPUT_DECODERS = { 'json' => :json, 'html' => :html, 'md' => :md }.freeze
 
     # HTTP timeout requests
     attr_reader :timeout,
