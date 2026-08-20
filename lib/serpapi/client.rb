@@ -123,7 +123,8 @@ module SerpApi
     #
     # @return [String] raw HTML search results.
     def html(params = {})
-      get('/search', :html, params, output: 'html')
+      params = params.reject { |key, _| key.to_s == 'output' }.merge(output: 'html') if params.instance_of?(Hash)
+      get('/search', :html, params)
     end
 
     # Perform a search using SerpApi.com and return results optimized for LLMs and AI agents.
@@ -132,7 +133,8 @@ module SerpApi
     # @param [Hash] params includes engine, api_key, search fields and more.
     # @return [String] search results formatted as Markdown.
     def md(params = {})
-      get('/search', :md, params, output: 'md')
+      params = params.reject { |key, _| key.to_s == 'output' }.merge(output: 'md') if params.instance_of?(Hash)
+      get('/search', :md, params)
     end
 
     # Get location using Location API
@@ -207,6 +209,8 @@ module SerpApi
 
       # merge default params with custom params
       q = @params.clone.merge(params)
+      q.delete('output') if params.key?(:output)
+      q.delete(:output) if params.key?('output') && !params.key?(:output)
 
       # do not pollute default params with custom params
       q.delete(:symbolize_names) if q.key?(:symbolize_names)
@@ -226,23 +230,19 @@ module SerpApi
     # @param [Symbol] decoder type :json, :html, or :md
     # @param [Hash] params custom search inputs
     # @return [String|Hash] raw text or decoded response as JSON / Hash
-    def get(endpoint, decoder = :json, params = {}, output: nil)
-      response = execute_request(endpoint, params, output)
+    def get(endpoint, decoder = :json, params = {})
+      response = execute_request(endpoint, params)
       handle_response(response, response_decoder(response, decoder), endpoint, params)
     ensure
       response&.flush if persistent?
     end
 
-    def execute_request(endpoint, params, output = nil)
-      request_params = query(params)
-      request_params.reject! { |key, _| key.to_s == 'output' } if output
-      request_params[:output] = output if output
-
+    def execute_request(endpoint, params)
       if persistent?
-        @socket.get(endpoint, params: request_params)
+        @socket.get(endpoint, params: query(params))
       else
         url = "https://#{BACKEND}#{endpoint}"
-        HTTP.timeout(timeout).get(url, params: request_params)
+        HTTP.timeout(timeout).get(url, params: query(params))
       end
     end
 
