@@ -36,16 +36,12 @@ describe 'set of client test to archieve full code coverage' do
     expect(markdown).to start_with('---')
   end
 
-  it 'honors explicit output when it differs from the method' do
-    html_json = client.html(q: 'Coffee', location: 'Austin, TX', output: 'json')
-    markdown_json = client.md(q: 'Coffee', location: 'Austin, TX', output: 'json')
-    html_markdown = client.html(q: 'Coffee', location: 'Austin, TX', output: 'md')
-    markdown_html = client.md(q: 'Coffee', location: 'Austin, TX', output: 'html')
+  it 'ignores output parameters passed to format shortcut methods' do
+    html = client.html(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    markdown = client.md(q: 'Coffee', location: 'Austin, TX', 'output' => 'html')
 
-    expect(html_json).to be_a(Hash)
-    expect(markdown_json).to be_a(Hash)
-    expect(html_markdown).to start_with('---')
-    expect(markdown_html).to match(/\A<!doctype html>/i)
+    expect(html).to match(/\A<!doctype html>/i)
+    expect(markdown).to start_with('---')
   end
 
   it 'search for coffee in Austin, TX and receive raw HTML' do

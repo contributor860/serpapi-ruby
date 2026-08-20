@@ -15,6 +15,8 @@ module SerpApi
   class Client
     # Backend service URL
     BACKEND = 'serpapi.com'.freeze
+    # SerpApi errors are JSON even when HTML or Markdown output was requested.
+    # Decode the actual Content-Type so structured errors and successful JSON responses become Hashes.
     CONTENT_TYPE_DECODERS = { 'application/json' => :json, 'text/html' => :html, 'text/markdown' => :md }.freeze
 
     # HTTP timeout requests
@@ -119,18 +121,18 @@ module SerpApi
     #  it is useful for training AI models, RAG, debugging
     #   or when you need to parse the HTML yourself.
     #
-    # @return [String|Hash] raw text or decoded JSON search results.
+    # @return [String] raw HTML search results.
     def html(params = {})
-      get('/search.html', :html, params)
+      get('/search', :html, params, output: 'html')
     end
 
     # Perform a search using SerpApi.com and return results optimized for LLMs and AI agents.
     # The output contains Markdown tables, links, and YAML frontmatter.
     #
     # @param [Hash] params includes engine, api_key, search fields and more.
-    # @return [String|Hash] Markdown, raw HTML, or decoded JSON search results.
+    # @return [String] search results formatted as Markdown.
     def md(params = {})
-      get('/search.md', :md, params)
+      get('/search', :md, params, output: 'md')
     end
 
     # Get location using Location API
@@ -200,11 +202,13 @@ module SerpApi
 
     # @param [Hash] params to merge with default parameters provided to the constructor.
     # @return [Hash] merged query parameters after cleanup
-    def query(params)
+    def query(params, output = nil)
       raise SerpApiError, "params must be hash, not: #{params.class}" unless params.instance_of?(Hash)
 
       # merge default params with custom params
       q = @params.clone.merge(params)
+      q.reject! { |key, _| key.to_s == 'output' } if output
+      q[:output] = output if output
 
       # do not pollute default params with custom params
       q.delete(:symbolize_names) if q.key?(:symbolize_names)
@@ -224,19 +228,19 @@ module SerpApi
     # @param [Symbol] decoder type :json, :html, or :md
     # @param [Hash] params custom search inputs
     # @return [String|Hash] raw text or decoded response as JSON / Hash
-    def get(endpoint, decoder = :json, params = {})
-      response = execute_request(endpoint, params)
+    def get(endpoint, decoder = :json, params = {}, output: nil)
+      response = execute_request(endpoint, params, output)
       handle_response(response, response_decoder(response, decoder), endpoint, params)
     ensure
       response&.flush if persistent?
     end
 
-    def execute_request(endpoint, params)
+    def execute_request(endpoint, params, output = nil)
       if persistent?
-        @socket.get(endpoint, params: query(params))
+        @socket.get(endpoint, params: query(params, output))
       else
         url = "https://#{BACKEND}#{endpoint}"
-        HTTP.timeout(timeout).get(url, params: query(params))
+        HTTP.timeout(timeout).get(url, params: query(params, output))
       end
     end
 
