@@ -202,13 +202,11 @@ module SerpApi
 
     # @param [Hash] params to merge with default parameters provided to the constructor.
     # @return [Hash] merged query parameters after cleanup
-    def query(params, output = nil)
+    def query(params)
       raise SerpApiError, "params must be hash, not: #{params.class}" unless params.instance_of?(Hash)
 
       # merge default params with custom params
       q = @params.clone.merge(params)
-      q.reject! { |key, _| key.to_s == 'output' } if output
-      q[:output] = output if output
 
       # do not pollute default params with custom params
       q.delete(:symbolize_names) if q.key?(:symbolize_names)
@@ -236,11 +234,15 @@ module SerpApi
     end
 
     def execute_request(endpoint, params, output = nil)
+      request_params = query(params)
+      request_params.reject! { |key, _| key.to_s == 'output' } if output
+      request_params[:output] = output if output
+
       if persistent?
-        @socket.get(endpoint, params: query(params, output))
+        @socket.get(endpoint, params: request_params)
       else
         url = "https://#{BACKEND}#{endpoint}"
-        HTTP.timeout(timeout).get(url, params: query(params, output))
+        HTTP.timeout(timeout).get(url, params: request_params)
       end
     end
 
