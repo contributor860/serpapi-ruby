@@ -120,7 +120,7 @@ describe 'set of client test to archieve full code coverage' do
     begin
       client.send(:get, '/invalid', :json, {})
     rescue SerpApi::SerpApiError => e
-      expect(e.message).to include('JSON parse error')
+      expect(e.message).to include('HTTP request failed with status: 404')
     rescue => e
       raise("wrong exception: #{e}")
     end
