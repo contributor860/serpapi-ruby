@@ -36,9 +36,23 @@ describe 'set of client test to archieve full code coverage' do
     expect(markdown).to start_with('---')
   end
 
+  it 'honors explicit output when it differs from the method' do
+    html_json = client.html(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    markdown_json = client.md(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    html_markdown = client.html(q: 'Coffee', location: 'Austin, TX', output: 'md')
+    markdown_html = client.md(q: 'Coffee', location: 'Austin, TX', output: 'html')
+
+    expect(html_json).to be_a(Hash)
+    expect(markdown_json).to be_a(Hash)
+    expect(html_markdown).to start_with('---')
+    expect(markdown_html).to match(/\A<!doctype html>/i)
+  end
+
   it 'search for coffee in Austin, TX and receive raw HTML' do
     results = client.html(q: 'Coffee', location: 'Austin, TX')
-    expect(results).to match(/coffee/i)
+
+    expect(results).to be_a(String)
+    expect(results).to match(/\A<!doctype html>/i)
   end
 
   it 'search for coffee in Austin, TX and receive Markdown' do
@@ -49,10 +63,15 @@ describe 'set of client test to archieve full code coverage' do
     expect(results).to include('## Organic Results')
   end
 
-  it 'reports Markdown HTTP errors with their decoder' do
+  it 'decodes JSON errors and reuses the persistent connection' do
     expect {
       client.md
-    }.to raise_error(SerpApi::SerpApiError) { |error| expect(error.decoder).to eq(:md) }
+    }.to raise_error(SerpApi::SerpApiError) do |error|
+      expect(error.decoder).to eq(:json)
+      expect(error.serpapi_error).to include('Missing query')
+    end
+
+    expect(client.md(q: 'Coffee')).to start_with('---')
   end
 
   it 'missing query' do

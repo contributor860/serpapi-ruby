@@ -15,7 +15,7 @@ module SerpApi
   class Client
     # Backend service URL
     BACKEND = 'serpapi.com'.freeze
-    OUTPUT_DECODERS = { 'json' => :json, 'html' => :html, 'md' => :md }.freeze
+    CONTENT_TYPE_DECODERS = { 'application/json' => :json, 'text/html' => :html, 'text/markdown' => :md }.freeze
 
     # HTTP timeout requests
     attr_reader :timeout,
@@ -111,8 +111,7 @@ module SerpApi
     #                this override the default params provided to the constructor.
     # @return [Hash|String] search results formatted as a Hash or raw text.
     def search(params = {})
-      output = query(params).transform_keys(&:to_sym)[:output]
-      get('/search', OUTPUT_DECODERS.fetch(output.to_s, :json), params)
+      get('/search', :json, params)
     end
 
     # html search perform a search using SerpApi.com
@@ -120,16 +119,16 @@ module SerpApi
     #  it is useful for training AI models, RAG, debugging
     #   or when you need to parse the HTML yourself.
     #
-    # @return [String] raw html search results directly from the search engine.
+    # @return [String|Hash] raw text or decoded JSON search results.
     def html(params = {})
-      get('/search', :html, params)
+      get('/search.html', :html, params)
     end
 
     # Perform a search using SerpApi.com and return results optimized for LLMs and AI agents.
     # The output contains Markdown tables, links, and YAML frontmatter.
     #
     # @param [Hash] params includes engine, api_key, search fields and more.
-    # @return [String] search results formatted as Markdown.
+    # @return [String|Hash] Markdown, raw HTML, or decoded JSON search results.
     def md(params = {})
       get('/search.md', :md, params)
     end
@@ -227,7 +226,9 @@ module SerpApi
     # @return [String|Hash] raw text or decoded response as JSON / Hash
     def get(endpoint, decoder = :json, params = {})
       response = execute_request(endpoint, params)
-      handle_response(response, decoder, endpoint, params)
+      handle_response(response, response_decoder(response, decoder), endpoint, params)
+    ensure
+      response&.flush if persistent?
     end
 
     def execute_request(endpoint, params)
@@ -237,6 +238,11 @@ module SerpApi
         url = "https://#{BACKEND}#{endpoint}"
         HTTP.timeout(timeout).get(url, params: query(params))
       end
+    end
+
+    def response_decoder(response, default)
+      content_type = response.headers['Content-Type'].to_s.split(';').first
+      CONTENT_TYPE_DECODERS.fetch(content_type, default)
     end
 
     def handle_response(response, decoder, endpoint, params)
@@ -260,16 +266,13 @@ module SerpApi
         raise_parser_error(response, endpoint, params)
       end
 
-      response.flush if persistent?
       data
     end
 
     def process_text_response(response, endpoint, params, decoder)
       raise_http_error(response, nil, endpoint, params, decoder: decoder) if response.status != 200
 
-      data = response.body.to_s
-      response.flush if persistent?
-      data
+      response.body.to_s
     end
 
     def validate_json_content!(data, response, endpoint, params)
