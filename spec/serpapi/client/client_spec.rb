@@ -25,9 +25,49 @@ describe 'set of client test to archieve full code coverage' do
     expect(results.keys).to include('search_metadata'), 'search_metadata should be present in the results'
   end
 
+  it 'selects the decoder from the output parameter' do
+    json = client.search(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    html = client.search(q: 'Coffee', location: 'Austin, TX', output: 'html')
+    markdown = client.search(q: 'Coffee', location: 'Austin, TX', output: 'md')
+
+    expect(json).to be_a(Hash)
+    expect(html).to match(/coffee/i)
+    expect(markdown).to be_a(String)
+    expect(markdown).to start_with('---')
+  end
+
+  it 'ignores output parameters passed to format shortcut methods' do
+    html = client.html(q: 'Coffee', location: 'Austin, TX', output: 'json')
+    markdown = client.md(q: 'Coffee', location: 'Austin, TX', 'output' => 'html')
+
+    expect(html).to match(/\A<!doctype html>/i)
+    expect(markdown).to start_with('---')
+  end
+
   it 'search for coffee in Austin, TX and receive raw HTML' do
     results = client.html(q: 'Coffee', location: 'Austin, TX')
-    expect(results).to match(/coffee/i)
+
+    expect(results).to be_a(String)
+    expect(results).to match(/\A<!doctype html>/i)
+  end
+
+  it 'search for coffee in Austin, TX and receive Markdown' do
+    results = client.md(q: 'Coffee', location: 'Austin, TX')
+
+    expect(results).to be_a(String)
+    expect(results).to start_with('---')
+    expect(results).to include('## Organic Results')
+  end
+
+  it 'decodes JSON errors and reuses the persistent connection' do
+    expect {
+      client.md
+    }.to raise_error(SerpApi::SerpApiError) do |error|
+      expect(error.decoder).to eq(:json)
+      expect(error.serpapi_error).to include('Missing query')
+    end
+
+    expect(client.md(q: 'Coffee')).to start_with('---')
   end
 
   it 'missing query' do
@@ -80,7 +120,7 @@ describe 'set of client test to archieve full code coverage' do
     begin
       client.send(:get, '/invalid', :json, {})
     rescue SerpApi::SerpApiError => e
-      expect(e.message).to include('JSON parse error')
+      expect(e.message).to include('HTTP request failed with status: 404')
     rescue => e
       raise("wrong exception: #{e}")
     end

@@ -26,6 +26,10 @@ describe 'SerpApi Search Archive API' do
       client = SerpApi::Client.new(api_key: client.api_key, engine: 'google')
       results = client.search_archive(search_id)
       expect(archive_search).to eq(results)
+
+      markdown = client.search_archive(search_id, :md)
+      expect(markdown).to be_a(String)
+      expect(markdown).to start_with('---')
     else
       client = SerpApi::Client.new(api_key: client.api_key, engine: 'google')
       allow(client).to receive(:get) { search_response_mock }
