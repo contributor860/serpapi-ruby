@@ -123,8 +123,7 @@ module SerpApi
     #
     # @return [String] raw HTML search results.
     def html(params = {})
-      params = params.reject { |key, _| key.to_s == 'output' }.merge(output: 'html') if params.instance_of?(Hash)
-      get('/search', :html, params)
+      get('/search', :html, force_output(params, 'html'))
     end
 
     # Perform a search using SerpApi.com and return results optimized for LLMs and AI agents.
@@ -133,8 +132,7 @@ module SerpApi
     # @param [Hash] params includes engine, api_key, search fields and more.
     # @return [String] search results formatted as Markdown.
     def md(params = {})
-      params = params.reject { |key, _| key.to_s == 'output' }.merge(output: 'md') if params.instance_of?(Hash)
-      get('/search', :md, params)
+      get('/search', :md, force_output(params, 'md'))
     end
 
     # Get location using Location API
@@ -201,6 +199,12 @@ module SerpApi
     end
 
     private
+
+    def force_output(params, format)
+      return params unless params.is_a?(Hash)
+
+      params.reject { |key, _| key.to_s == 'output' }.merge(output: format)
+    end
 
     # @param [Hash] params to merge with default parameters provided to the constructor.
     # @return [Hash] merged query parameters after cleanup
